@@ -4,6 +4,7 @@
 #
 
 # Libraries
+# install.packages("targets")
 library(targets)
 # library(ggplot2)
 # library(tibble)
@@ -118,6 +119,21 @@ tar_read(data_5)
 tar_read(plot_5)
 tar_read(plot_6)
 tar_read(plot_7)
+
+#
+# Example 3 - manually ----
+#
+
+source("functions.R")
+library(readr)
+library(dplyr)
+library(ggplot2)
+# tar_read(file_5)
+
+test_data <- get_data_ex3("data_ex3/data_5.csv")
+test_model <- fit_model(test_data)
+test_plot <- plot_model(test_model, test_data)
+test_plot
 
 #
 # Example 3 - modify data ----
