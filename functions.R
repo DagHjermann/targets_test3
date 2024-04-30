@@ -20,6 +20,6 @@ fit_model <- function(data) {
 # For example 2 and 3
 plot_model <- function(model, data) {
   ggplot(data) +
-    geom_point(aes(x = Wind, y = Temp)) +
+    geom_point(aes(x =  Temp, y = Wind)) +
     geom_abline(intercept = model[1], slope = model[2])
 }
