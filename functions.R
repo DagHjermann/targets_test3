@@ -23,3 +23,8 @@ plot_model <- function(model, data) {
     geom_point(aes(x =  Temp, y = Wind)) +
     geom_abline(intercept = model[1], slope = model[2])
 }
+
+# For example 4
+split_by_month <- function(data){
+  split(data, data$Month)
+}
