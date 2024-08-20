@@ -83,17 +83,17 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 #   but when tar_make is run, it discovers underway that only data_6 has xchanged,
 #   and re-runs only model and plot for this month
 
-list(
-  tar_target(file, "data_ex4/airquality.csv", format = "file"),
-  tar_target(data, get_data_ex3(file)),
-  tar_target(datalist, split_by_month(data)),
-  tar_map(
-    list(month = as.character(5:9)),
-    tar_target(data, datalist[[month]]),      # adding "data" as a target
-    tar_target(model, fit_model(data)),
-    tar_target(plot, plot_model(model, data))
-  )
-)
+# list(
+#   tar_target(file, "data_ex4/airquality.csv", format = "file"),
+#   tar_target(data, get_data_ex3(file)),
+#   tar_target(datalist, split_by_month(data)),
+#   tar_map(
+#     list(month = as.character(5:9)),
+#     tar_target(data, datalist[[month]]),      # adding "data" as a target
+#     tar_target(model, fit_model(data)),
+#     tar_target(plot, plot_model(model, data))
+#   )
+# )
 
 # . example 5 with error ----
 # - for testing error handling  
@@ -126,4 +126,41 @@ list(
 # )
 
 
+#
+# example 6 ----
+#
+# As example 5
+# - but instead of hard-coding "5:9" explicitely, we want it to use the names of 'datalist' 
+# Following the approach here:  
+#   https://stackoverflow.com/a/72115182
+# For more complex problems, see
+#   
+
+data_check <- read.csv("data_ex4/airquality.csv")
+
+# First, read raw data to find the values of Month,
+# and put that in a data frame
+# 'Month' will be used to get the correct list item
+# 'name' will be used to name the targets   
+library(dplyr)
+params <- data_check %>%
+  distinct(Month) %>%
+  mutate(
+    Month = as.character(Month),
+    name = paste0("mon", Month))
+
+# Then, give the pipeline as this - note the use of values and 
+# names in 'tar_map'
+list(
+  tar_target(file, "data_ex4/airquality.csv", format = "file"),
+  tar_target(data, get_data_ex3(file)),
+  tar_target(datalist, split_by_month(data)),
+  tar_map(
+    values = params,
+    names = "name",
+    tar_target(data, datalist[[Month]]),      # adding "data" as a target
+    tar_target(model, fit_model(data)),
+    tar_target(plot, plot_model(model, data))
+  )
+)
 

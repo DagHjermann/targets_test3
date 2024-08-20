@@ -311,3 +311,23 @@ tar_make()
 # ✔ skipped target model_9
 # ✔ skipped target model_5
 
+
+#
+# Example 6 - avoid hard-coding ----
+# - but instead of hard-coding "5:9" explicitely, we want it to use the names of 'datalist' 
+
+# The first idea was to just use the following as 
+# first argument of tar_map:
+#     list(month = names(datalist))
+# But then it stops already in tar_manifest, "cannot find datalist"
+# This is due to the metaprogramming tar_map does, see
+# ?tar_map and https://github.com/ropensci/tarchetypes/discussions/105
+#
+# The approach used was the one given here:
+# https://stackoverflow.com/a/72115182
+
+tar_manifest()
+tar_visnetwork()
+tar_make()
+tar_read(plot_mon5)
+
