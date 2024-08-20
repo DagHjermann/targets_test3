@@ -28,3 +28,29 @@ plot_model <- function(model, data) {
 split_by_month <- function(data){
   split(data, data$Month)
 }
+
+# For example 7
+some_QC_process <- function(data){
+  # just for testing, the QC simply removes month 6
+  subset(data, Month != 6)
+}
+
+# For example 7
+fit_model_safe <- function(data) {
+  if (!is.null(data)){
+    lm(Wind ~ Temp, data) %>%
+      coefficients()
+  } else {
+    NULL
+  }
+}
+plot_model_safe <- function(model, data) {
+  if (!is.null(data)){
+    gg <- ggplot(data) +
+      geom_point(aes(x =  Temp, y = Wind)) +
+      geom_abline(intercept = model[1], slope = model[2])
+  } else {
+    NULL
+  }
+}
+

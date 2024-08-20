@@ -315,13 +315,16 @@ tar_make()
 #
 # Example 6 - avoid hard-coding ----
 # - but instead of hard-coding "5:9" explicitely, we want it to use the names of 'datalist' 
+#
 
 # The first idea was to just use the following as 
 # first argument of tar_map:
 #     list(month = names(datalist))
 # But then it stops already in tar_manifest, "cannot find datalist"
 # This is due to the metaprogramming tar_map does, see
-# ?tar_map and https://github.com/ropensci/tarchetypes/discussions/105
+# ?tar_map
+# https://stackoverflow.com/a/77949926
+# https://github.com/ropensci/tarchetypes/discussions/105
 #
 # The approach used was the one given here:
 # https://stackoverflow.com/a/72115182
@@ -330,4 +333,20 @@ tar_manifest()
 tar_visnetwork()
 tar_make()
 tar_read(plot_mon5)
+tar_read(plot_mon6)
+
+
+# Example 7 - some branches have no data ----
+# - as example 6, but some QC process deletes all data of one month 
+# As 'params' has all months included, asking for 'datalist' of the deleted month 
+#   will result in NULL
+# We must then make new versions of the downstream functions, i.e. 'fit_model_safe'
+#   and 'plot_model_safe', which doesn't fall over if 'data' is NULL
+
+tar_manifest()
+tar_visnetwork()
+tar_make()
+tar_read(plot_mon5)  # plots figure
+tar_read(plot_mon6)  # returns NULL
+
 

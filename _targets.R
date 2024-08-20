@@ -134,7 +134,44 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 # Following the approach here:  
 #   https://stackoverflow.com/a/72115182
 # For more complex problems, see
-#   
+#   https://github.com/ropensci/tarchetypes/discussions/105 
+
+# # First, read raw data to find the values of Month,
+# # and put that in a data frame
+# # 'Month' will be used to get the correct list item
+# # 'name' will be used to name the targets   
+# library(dplyr)
+# data_check <- read.csv("data_ex4/airquality.csv")
+# params <- data_check %>%
+#   distinct(Month) %>%
+#   mutate(
+#     Month = as.character(Month),
+#     name = paste0("mon", Month))
+# 
+# # Then, give the pipeline as this - note the use of values and 
+# # names in 'tar_map'
+# list(
+#   tar_target(file, "data_ex4/airquality.csv", format = "file"),
+#   tar_target(data, get_data_ex3(file)),
+#   tar_target(datalist, split_by_month(data2)),
+#   tar_map(
+#     values = params,
+#     names = "name",
+#     tar_target(data, datalist[[Month]]),      # adding "data" as a target
+#     tar_target(model, fit_model(data)),
+#     tar_target(plot, plot_model(model, data))
+#   )
+# )
+
+#
+# example 7 ----
+#
+# As example 6, but we introduce some "QC process", which happens to 
+#   delete all the data of one month
+# As 'params' has all months included, asking for 'datalist' of the deleted month 
+#   will result in NULL
+# We must then make new versions of the downstream functions, i.e. 'fit_model_safe'
+#   and 'plot_model_safe', which doesn't fall over if 'data' is NULL
 
 data_check <- read.csv("data_ex4/airquality.csv")
 
@@ -154,13 +191,17 @@ params <- data_check %>%
 list(
   tar_target(file, "data_ex4/airquality.csv", format = "file"),
   tar_target(data, get_data_ex3(file)),
-  tar_target(datalist, split_by_month(data)),
+  tar_target(data2, some_QC_process(data)),   # 
+  tar_target(datalist, split_by_month(data2)),
   tar_map(
     values = params,
     names = "name",
-    tar_target(data, datalist[[Month]]),      # adding "data" as a target
-    tar_target(model, fit_model(data)),
-    tar_target(plot, plot_model(model, data))
+    tar_target(data, datalist[[Month]]),      
+    tar_target(model, fit_model_safe(data)),        # safe variant of fit_model
+    tar_target(plot, plot_model_safe(model, data))  # safe variant of plot_model
   )
 )
+
+
+
 
