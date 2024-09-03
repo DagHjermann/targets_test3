@@ -8,6 +8,7 @@ source("functions.R")
 
 tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 1 ----
 # - from ?tar_map
@@ -20,6 +21,7 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 #   )
 # list(targets)
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 2 ----
 #
@@ -39,6 +41,7 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 # )
 # list(targets)
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 3 ----
 #
@@ -56,6 +59,7 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 # )
 # list(targets)
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 4 ----
 #
@@ -74,6 +78,7 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 #   )
 # )
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 5 ----
 #
@@ -126,6 +131,7 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 # )
 
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 6 ----
 #
@@ -163,6 +169,7 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 #   )
 # )
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 #
 # example 7 ----
 #
@@ -175,32 +182,122 @@ tar_option_set(packages = c("readr", "dplyr", "ggplot2"))
 
 data_check <- read.csv("data_ex4/airquality.csv")
 
-# First, read raw data to find the values of Month,
-# and put that in a data frame
-# 'Month' will be used to get the correct list item
-# 'name' will be used to name the targets   
+# # First, read raw data to find the values of Month,
+# # and put that in a data frame
+# # 'Month' will be used to get the correct list item
+# # 'name' will be used to name the targets   
+# library(dplyr)
+# params <- data_check %>%
+#   distinct(Month) %>%
+#   mutate(
+#     Month = as.character(Month),
+#     name = paste0("mon", Month))
+# 
+# # Then, give the pipeline as this - note the use of values and 
+# # names in 'tar_map'
+# list(
+#   tar_target(file, "data_ex4/airquality.csv", format = "file"),
+#   tar_target(data, get_data_ex3(file)),
+#   tar_target(data2, some_QC_process(data)),   # 
+#   tar_target(datalist, split_by_month(data2)),
+#   tar_map(
+#     values = params,
+#     names = "name",
+#     tar_target(data, datalist[[Month]]),      
+#     tar_target(model, fit_model_safe(data)),        # safe variant of fit_model
+#     tar_target(plot, plot_model_safe(model, data))  # safe variant of plot_model
+#   ),
+#   tarchetypes::tar_combine(comb, model_mon5, model_mon7)
+# )
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#
+# example 8 ----
+#
+# As example 6, but we try to combine the "model" data in the end  
+# - we drop the plot  
+# - the first target list is saved as 'mapped' and used in the 
+# second targets list
+# - note that tar_manifest shows us whether it does what we want it to do:
+# "combined_summaries "dplyr::bind_rows(model_mon5 = model_mon5, model_mon6 = model_mon6,..." 
+#
+# Based on
+# https://github.com/ropensci/targets/discussions/987
+
+# library(dplyr)
+# data_check <- read.csv("data_ex4/airquality.csv")
+# params <- data_check %>%
+#   distinct(Month) %>%
+#   mutate(
+#     Month = as.character(Month),
+#     name = paste0("mon", Month))
+# 
+# # Then, give the pipeline as this - note the use of values and
+# # names in 'tar_map'
+# mapped <- list(
+#   tar_target(file, "data_ex4/airquality.csv", format = "file"),
+#   tar_target(data, get_data_ex3(file)),
+#   tar_target(datalist, split_by_month(data)),
+#   tar_map(
+#     values = params,
+#     names = "name",
+#     tar_target(data, datalist[[Month]]),      # adding "data" as a target
+#     tar_target(model, fit_model(data))
+#   )
+# )
+# list( 
+#   mapped,                  # references the first list
+#   tar_combine(
+#     combined_summaries,
+#     mapped[[4]][[2]],      # 'tar_map' is item 4; 'model' is item 2 inside 'tar_map'
+#     command = dplyr::bind_rows(!!!.x, .id = "method")
+#   ))
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#
+# example 9 ----
+#
+# As example 8, but we use 'fit_model2' which only returns the model object,
+#  not the coefficients
+# - instead we replace 'bind_rows' with 'summarize_and_combine' which extract 
+# coeffecients on the fly
+
 library(dplyr)
+
+summarize_and_combine <- function(...){
+  model_list <- list(...)
+  coeff_list <- purrr::map(model_list, .f = coefficients)
+  dplyr::bind_rows(coeff_list)
+}
+
+data_check <- read.csv("data_ex4/airquality.csv")
 params <- data_check %>%
   distinct(Month) %>%
   mutate(
     Month = as.character(Month),
     name = paste0("mon", Month))
 
-# Then, give the pipeline as this - note the use of values and 
+# Then, give the pipeline as this - note the use of values and
 # names in 'tar_map'
-list(
+mapped <- list(
   tar_target(file, "data_ex4/airquality.csv", format = "file"),
   tar_target(data, get_data_ex3(file)),
-  tar_target(data2, some_QC_process(data)),   # 
-  tar_target(datalist, split_by_month(data2)),
+  tar_target(datalist, split_by_month(data)),
   tar_map(
     values = params,
     names = "name",
-    tar_target(data, datalist[[Month]]),      
-    tar_target(model, fit_model_safe(data)),        # safe variant of fit_model
-    tar_target(plot, plot_model_safe(model, data))  # safe variant of plot_model
+    tar_target(data, datalist[[Month]]),      # adding "data" as a target
+    tar_target(model, fit_model2(data))
   )
 )
+list(
+  mapped,
+  tar_combine(
+    combined_summaries,
+    mapped[[4]][[2]],
+    command = summarize_and_combine(!!!.x)   # remember: no .id here
+  ))
+
 
 
 

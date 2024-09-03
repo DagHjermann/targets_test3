@@ -349,4 +349,35 @@ tar_make()
 tar_read(plot_mon5)  # plots figure
 tar_read(plot_mon6)  # returns NULL
 
+#
+# example 8 ----
+#
+# As example 6, but we try to combine data in the end
+
+tar_manifest()
+tar_visnetwork()
+tar_make()
+tar_read(combined_summaries)
+
+#
+# example 8 ----
+#
+# As example 6, but we try to combine data in the end
+
+tar_manifest()
+tar_visnetwork()
+tar_make()
+tar_read(combined_summaries)
+
+#
+# example 9 ----
+#
+# As example 8, but we combine model objects (not a vector),
+# and use a custom function to extract summaries and then combine them
+
+tar_manifest()
+tar_visnetwork()
+tar_make()
+tar_read(combined_summaries)
+
 

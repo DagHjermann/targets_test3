@@ -17,6 +17,11 @@ fit_model <- function(data) {
     coefficients()
 }
 
+# For example 8
+fit_model2 <- function(data) {
+  lm(Wind ~ Temp, data)
+}
+
 # For example 2 and 3
 plot_model <- function(model, data) {
   ggplot(data) +
