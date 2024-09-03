@@ -262,6 +262,10 @@ data_check <- read.csv("data_ex4/airquality.csv")
 # - instead we replace 'bind_rows' with 'summarize_and_combine' which extract 
 # coeffecients on the fly
 
+# Remove these objects (only to get a cleaner plot in tar_visnetwork) 
+rm(fit_model, plot_model_safe, get_data_ex2, plot_model,
+   some_QC_process, fit_model_safe)
+
 library(dplyr)
 
 summarize_and_combine <- function(...){
@@ -270,12 +274,14 @@ summarize_and_combine <- function(...){
   dplyr::bind_rows(coeff_list)
 }
 
-data_check <- read.csv("data_ex4/airquality.csv")
-params <- data_check %>%
+# skip the 'data_check' object - get params directly
+params <- read.csv("data_ex4/airquality.csv") %>%
   distinct(Month) %>%
   mutate(
     Month = as.character(Month),
     name = paste0("mon", Month))
+
+rm(data_check)
 
 # Then, give the pipeline as this - note the use of values and
 # names in 'tar_map'
@@ -295,7 +301,7 @@ list(
   tar_combine(
     combined_summaries,
     mapped[[4]][[2]],
-    command = summarize_and_combine(!!!.x)   # remember: no .id here
+    command = summarize_and_combine(!!!.x)   # remember: no .id here, as in example 8
   ))
 
 
